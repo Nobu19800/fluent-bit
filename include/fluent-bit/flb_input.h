@@ -497,7 +497,11 @@ static inline void flb_input_return(struct flb_coro *coro) {
      * We put together the return value with the task_id on the 32 bits at right
      */
     val = FLB_BITS_U64_SET(3 /* FLB_ENGINE_IN_COROREAD */, in_coro->id);
-    n = flb_pipe_w(in_coro->config->ch_manager[1], static_cast<const char*>((void *) &val), sizeof(val));
+#if defined(__cplusplus) && (defined(_WIN32) || defined(_WIN64))
+    n = flb_pipe_w(in_coro->config->ch_manager[1], static_cast<const char*>((void*)&val), sizeof(val));
+#else
+    n = flb_pipe_w(in_coro->config->ch_manager[1], (void *) &val, sizeof(val));
+#endif
     if (n == -1) {
         flb_errno();
     }

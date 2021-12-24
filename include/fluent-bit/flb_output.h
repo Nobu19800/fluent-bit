@@ -636,7 +636,11 @@ static inline void flb_output_return(int ret, struct flb_coro *co) {
     }
 
     /* Notify the event loop about our return status */
-    n = flb_pipe_w(pipe_fd, static_cast<const char*>((void *) &val), sizeof(val));
+#if defined(__cplusplus) && (defined(_WIN32) || defined(_WIN64))
+    n = flb_pipe_w(pipe_fd, static_cast<const char*>((void*)&val), sizeof(val));
+#else
+    n = flb_pipe_w(pipe_fd, (const char*)(void*)&val, sizeof(val));
+#endif
     if (n == -1) {
         flb_errno();
     }

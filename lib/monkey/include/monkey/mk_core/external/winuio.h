@@ -35,8 +35,11 @@ static inline ssize_t writev(int fildes, const struct mk_iovec *iov, int iovcnt)
 
     for (i = 0; i < iovcnt; i++) {
         int len;
-
+#if defined(__cplusplus) && (defined(_WIN32) || defined(_WIN64))
         len = send((SOCKET)fildes, static_cast<const char*>(iov[i].iov_base), (int)iov[i].iov_len, 0);
+#else
+        len = send((SOCKET)fildes, iov[i].iov_base, (int)iov[i].iov_len, 0);
+#endif
         if (len == SOCKET_ERROR) {
                 uint32_t err = GetLastError();
             // errno = win_to_posix_error(err);
